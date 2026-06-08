@@ -399,6 +399,13 @@ impl EncPictureParameterBufferVP9 {
         skip_frame_flag: u8,
         number_skip_frames: u8,
         skip_frames_size: u32,
+        // `seg_id_block_size` — one of the `VA_SEGID_BLOCK_*`
+        // constants from `va.h`: `0` = 16x16 (default granularity
+        // for VP9), `1` = 32x32, `2` = 64x64, `3` = 8x8. Ignored by
+        // the driver when segmentation is disabled in `pic_flags`,
+        // but the field still has to be initialised — passing `0`
+        // selects 16x16 which matches what reference encoders emit.
+        seg_id_block_size: u8,
     ) -> Self {
         let ref_flags = ref_flags.0;
         let pic_flags = pic_flags.0;
@@ -434,6 +441,13 @@ impl EncPictureParameterBufferVP9 {
             skip_frame_flag,
             number_skip_frames,
             skip_frames_size,
+            seg_id_block_size,
+            // `va_reserved8` / `va_reserved` are documented in
+            // `va_enc_vp9.h` as "must be zero". `Default::default()`
+            // expands to a zeroed `[u8; 3]` / `[u32; 7]` which
+            // satisfies that contract — same pattern the AV1 and
+            // HEVC buffer constructors use throughout this crate.
+            va_reserved8: Default::default(),
             va_reserved: Default::default(),
         }))
     }
